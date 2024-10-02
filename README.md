@@ -6,6 +6,27 @@
 This project demonstrates the integration of Apache Hudi, Apache Spark, and MinIO to build a prototype data lake architecture. 
 It allows scalable, efficient, and transactional data management on top of cloud-based object storage.
 
+
+#### Command to start it using docker compose:
+
+``` commandline
+docker-compose up -d
+
+# in case you want to reacreate images after your chagne
+docker-compose up --build --force-recreate
+ ```
+
+#### UI's
+
+1. Jupyter-Notebook: http://localhost:4041/tree?
+2. Minio: http://localhost:9001/
+3. Spark ui: http://localhost:4040/jobs/
+4. History server: http://localhost:18080/
+
+
+
+
+
 Note: If you go through `dev.Dockerfile` you will see that there are some COPY instructions are commented out.
 That is becuase for the purpose of testing and debugging I downlaod all the tar.gz, zip and jar files in downloads directory
 and then I use COPY command to copy these files to the container. This makes my debugging fast as I don't need to download from internet
