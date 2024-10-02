@@ -1,6 +1,8 @@
 
 # Apache Hudi on Spark with MinIO Integration
 
+![img.png](images/main.png)
+
 This project demonstrates the integration of Apache Hudi, Apache Spark, and MinIO to build a prototype data lake architecture. 
 It allows scalable, efficient, and transactional data management on top of cloud-based object storage.
 
