@@ -7,7 +7,7 @@ This project demonstrates the integration of Apache Hudi, Apache Spark, and MinI
 It allows scalable, efficient, and transactional data management on top of cloud-based object storage.
 
 
-#### Command to start it using docker compose:
+### Command to start it using `docker compose`:
 
 ``` commandline
 docker-compose up -d
@@ -16,7 +16,7 @@ docker-compose up -d
 docker-compose up --build --force-recreate
  ```
 
-#### UI's
+### UI's: Various User Interface
 
 1. Jupyter-Notebook: http://localhost:4041/tree?
 2. Minio: http://localhost:9001/
