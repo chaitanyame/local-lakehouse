@@ -1,195 +1,24 @@
-# Spark-DP-101
 
-Spark Data Platform-101 is a Very basic Apache Spark setup in a Docker Container. 
-This setup is designed for testing Apache spark and for learning purpose as an alternative to VM's 
-which are big in volume and take too much resources. 
-This docker application has all basic features of Apache Spark like:
-1. Spark Shell 
-2. Pyspark Shell 
-3. Jupyter Notebook http://localhost:4041
-4. Spark UI http://localhost:4040
-5. Spark History Server http://localhost:18080
+# Apache Hudi on Spark with MinIO Integration
 
-### Architecture
+This project demonstrates the integration of Apache Hudi, Apache Spark, and MinIO to build a prototype data lake architecture. 
+It allows scalable, efficient, and transactional data management on top of cloud-based object storage.
 
-> ![hl_architecture.png](resources/hl_architecture.png)
-
-### How to use it:
-#### 1. Clone the repository in your machine using git clone command  
-   ```commandline
-   git clone git@github.com:experientlabs/spark-dp-101.git
-   ```
-#### 2. Next build the image by running below `docker build` command.  
-
-   ```commandline
-   docker build -t spark-dp-101 
-   docker build -t spark-hudi-101 -f dev.Dockerfile .
-
-   ```
-   - Here -t is to tag image with a name:`spark-dp-101`.
-   - Here '.' is to run the build command in current directory. So dockerfile should be located in current directory.   
-
-#### 3. Once image is built you need to run following command to run the container in jupyter notebook mode. 
-
-   ```commandline
-   hostfolder="$(pwd)"
-   dockerfolder="/home/sparkuser/app"
-   
-   docker run --rm -d --name spark-container \
-   -p 4040:4040 -p 4041:4041 -p 18080:18080 \
-   -v ${hostfolder}/app:${dockerfolder} -v ${hostfolder}/event_logs:/home/spark/event_logs \
-   spark-dp-101:latest jupyter
-   ```
-
-####  In order to run it in saprk-shell mode use below command (here last parameter is replaced with `spark-shell`). 
-
-   ```commandline
-   hostfolder="$(pwd)"
-   dockerfolder="/home/sparkuser/app"
-   
-   docker run --rm -it --name spark-container \
-   -p 4040:4040 -p 18080:18080 -p 8080:8080 \
-   -v ${hostfolder}/app:${dockerfolder} -v ${hostfolder}/event_logs:/home/spark/event_logs \
-   spark-dp-101:latest spark-shell
-   ```
+Note: If you go through `dev.Dockerfile` you will see that there are some COPY instructions are commented out.
+That is becuase for the purpose of testing and debugging I downlaod all the tar.gz, zip and jar files in downloads directory
+and then I use COPY command to copy these files to the container. This makes my debugging fast as I don't need to download from internet
 
 
-```commandline
-hostfolder="$(pwd)"
-dockerfolder="/home/sparkuser/app"
-
-docker run --rm -it --name spark-uc \
--p 4040:4040 -p 18080:18080 -p 8080:8080 \
--v ${hostfolder}/app:${dockerfolder} -v ${hostfolder}/event_logs:/home/spark/event_logs \
-spark-dp-101:latest spark-shell
-```
-
-####  Similarly to run pyspark shell  use below command (here last parameter is replaced with `pyspark`). 
-
-   ```commandline
-   hostfolder="$(pwd)"
-   dockerfolder="/home/sparkuser/app"
-   
-   docker run --rm -it --name spark-container \
-   -p 4040:4040 -p 4041:4041 -p 18080:18080 \
-   -v ${hostfolder}/app:${dockerfolder} -v ${hostfolder}/event_logs:/home/spark/event_logs \
-   spark-dp-101:latest pyspark
-   ```
-
-#### Once your container is running you can use below urls to access various web UI's
-1. Jupyter Notebook: http://localhost:4041
-2. Spark UI: http://localhost:4040
-3. Spark History Server: http://localhost:18080
+Existing Issues: 
+- Reading table returns empty table, need to fix that. 
 
 
-Terminal window after running docker run command:
 
-> ![terminal.png](resources/terminal.png)
-> ![terminal_op.png](resources/terminal_op.png)
+### Example Code: 
+A very simple test to create a table using pyspark
+to check if things are working
 
-### Jupyter Notebook
-http://127.0.0.1:4041/notebooks/first_notebook.ipynb
-Running below code in jupyter notebook, in order to ascertain that spark is working fine in the container. 
 ```python
-import findspark
-findspark.init()
-import pyspark
-from pyspark.sql import SparkSession
-import pyspark.sql.functions as f
-
-# create spark session
-spark = SparkSession.builder.appName("SparkSample").getOrCreate()
-
-# read text file
-df_text_file = spark.read.text("textfile.txt")
-df_text_file.show()
-
-df_total_words = df_text_file.withColumn('wordCount', f.size(f.split(f.col('value'), ' ')))
-df_total_words.show()
-
-# Word count example
-df_word_count = df_text_file.withColumn('word', f.explode(f.split(f.col('value'), ' '))).groupBy('word').count().sort('count', ascending=False)
-df_word_count.show()
-```
-
-> ![jupyter.png](resources/jupyter.png)
-
-### Output of word count example: 
-
-> ![jupyter_op.png](resources/jupyter_op.png)
-
-
-### Spark UI:
-http://localhost:4040/jobs/
-> ![spark_ui.png](resources/saprk_ui.png)
-
-
-### Spark History Server: 
-http://localhost:18080/
-> ![spark_history_server.png](resources/spark_history_server.png)
-
-
-Above features can also be accessed using docker-compose commands
-- docker-compose up jupyter
-- docker-compose up spark-shell
-- docker-compose up pyspark
-
-
-This repository is brough to you by ExperientLabs, if you want to contribute, please feel free to raise a PR or if you 
-come across an issue, don't hesitate to raise it. 
-
-
-docker cp /home/sanjeet/Downloads/unitycatalog-0.1.0.tar.gz be3a8857e400:/home/spark/unitycatalog-0.1.0.tar.gz
-tar -xf unitycatalog-0.1.0.tar.gz
-
-https://books.japila.pl/unity-catalog-internals/demo/namespace-support-in-spark-integration/
-
-
-
-docker-compose -f docker-compose-multinode.yml up
-
-
-
-
-
-
-
-
-
-
-
-### Error Logs
-
-df.write.format("hudi").options(**hudi_options).mode("overwrite").save("/tmp/hudi_table")
-24/09/19 06:58:14 WARN DFSPropertiesConfiguration: Cannot find HUDI_CONF_DIR, please set it as the dir of hudi-defaults.conf
-24/09/19 06:58:14 WARN DFSPropertiesConfiguration: Properties file file:/etc/hudi/conf/hudi-defaults.conf not found. Ignoring to load props file
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-  File "/home/spark/python/pyspark/sql/readwriter.py", line 1463, in save
-    self._jwrite.save(path)
-  File "/home/spark/python/lib/py4j-0.10.9.7-src.zip/py4j/java_gateway.py", line 1322, in __call__
-  File "/home/spark/python/pyspark/errors/exceptions/captured.py", line 179, in deco
-    return f(*a, **kw)
-           ^^^^^^^^^^^
-  File "/home/spark/python/lib/py4j-0.10.9.7-src.zip/py4j/protocol.py", line 326, in get_return_value
-py4j.protocol.Py4JJavaError: An error occurred while calling o71.save.
-: org.apache.hudi.exception.HoodieException: hoodie only support org.apache.spark.serializer.KryoSerializer as spark.serializer
-
-
-hostfolder="$(pwd)"
-dockerfolder="/home/sparkuser/app"
-
-docker run --rm -d --name spark-container \
--p 4040:4040 -p 4041:4041 -p 18080:18080 \
--v ${hostfolder}/app:${dockerfolder} -v ${hostfolder}/event_logs:/home/spark/event_logs \
-spark-hudi-101:latest jupyter
-
-
-
-/home/spark/sbin/start-history-server.sh && pyspark --jars /home/spark/jars/hudi-spark3.5-bundle_2.13-0.15.0.jar
-
-
-
 import findspark
 findspark.init()
 import pyspark
@@ -199,26 +28,72 @@ import pyspark.sql.functions as f
 # Create SparkSession with Hudi configuration
 
 spark = SparkSession.builder \
-    .appName("HudiExample") \
+    .appName("HudiJob") \
+    .config("spark.hadoop.fs.s3a.access.key", "minioadmin") \
+    .config("spark.hadoop.fs.s3a.secret.key", "minioadmin") \
+    .config("spark.hadoop.fs.s3a.endpoint", "http://minio:9000") \
+    .config("spark.hadoop.fs.s3a.path.style.access", "true") \
+    .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false") \
     .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
     .config("spark.sql.extensions", "org.apache.spark.sql.hudi.HoodieSparkSessionExtension") \
     .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.hudi.catalog.HoodieCatalog") \
     .getOrCreate()
+```
 
 
-# Read Hudi data back
-hudi_read_options = {
-    'hoodie.datasource.query.type': 'snapshot'
+```python
+from pyspark.sql import Row
+from pyspark.sql.functions import lit
+# Example data
+data = [Row(id=1, name="Alice", age=24), Row(id=2, name="Bob", age=30)]
+df = spark.createDataFrame(data)
+
+dfWithTimestamp = df.withColumn("curr_timestamp", f.current_timestamp())
+dfWithTimestamp.show()
+
+```
+
+Write to Hudi table in Minio
+
+```python
+hudi_options = {
+    'hoodie.table.name':'my_hudi_table',
+    'hoodie.datasource.write.storage.type': 'COPY_ON_WRITE',
+    'hoodie.datasource.write.recordkey.field': 'id',
+    'hoodie.datasource.write.precombine.field': 'curr_timestamp',
+    'hoodie.datasource.write.partitionpath.field': 'curr_timestamp',  # Consider changing this
+    'hoodie.datasource.write.table.name': 'my_hudi_table',
+    'hoodie.datasource.hive_sync.enable': 'false',
+    'hoodie.datasource.write.operation': 'upsert',
 }
 
-df_hudi = spark.read.format("hudi").options(**hudi_read_options).load("/home/sparkuser/app/hudi/table/*")
-df_hudi.show()
+# Sample Hudi write code
+dfWithTimestamp.write.format("hudi").options(**hudi_options).mode("overwrite").save("s3a://hudi-minio-bucket/my_hudi_table")
+```
 
+Read Hudi table from Minio
+```python
+# Specify the Hudi options
+hudi_read_options = {
+    'hoodie.datasource.read.paths': 's3a://hudi-minio-bucket/my_hudi_table',
+    'hoodie.datasource.query.type': 'snapshot'  # You can also use 'incremental' or 'read_optimized' based on your use case
+}
 
-# Adding a new record
-new_data = [Row(id=3, name="Charlie", age=28)]
-df_new = spark.createDataFrame(new_data).withColumn("curr_timestamp", f.current_timestamp())
-df_new.show()
+# Read the Hudi table
+hudi_df = spark.read.format("hudi").options(**hudi_read_options).load()
 
-# Write data (upsert)
-df_new.write.format("hudi").options(**hudi_options).mode("append").save("/home/sparkuser/app/hudi/table")
+# Display the data
+hudi_df.show()
+```
+
+![img.png](images/jupyter-spark-session.png)
+
+Read hudi table screenshot:
+- Here I see empty table, that seems like issue with write or format issue 
+- In below screen I can see data in minio bucket so need to debug this. 
+![img.png](images/read-hudi-table.png)
+
+Let's check the bucket content: 
+- As we can see in the screenshot below. Table has ben written to bucket.
+
+![img.png](images/minio-ui-bucket-content.png)
