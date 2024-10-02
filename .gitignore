@@ -1,6 +1,8 @@
 event_logs
 .idea
-app
+app/.ipynb_checkpoints
+app/event_logs
+app/spark-warehouse
 minio
 data
 downloads
