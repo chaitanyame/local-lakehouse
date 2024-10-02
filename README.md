@@ -33,7 +33,7 @@ and then I use COPY command to copy these files to the container. This makes my 
 
 
 Existing Issues: 
-- Reading table returns empty table, need to fix that. 
+- Reading table returns empty table, need to fix that.   -- **Resolved**
 
 
 
@@ -120,3 +120,6 @@ Let's check the bucket content:
 - As we can see in the screenshot below. Table has ben written to bucket.
 
 ![img.png](images/minio-ui-bucket-content.png)
+
+Above issue has be resolved, and here is updated read code:
+![img.png](images/hudi-table-read-updated.png)
