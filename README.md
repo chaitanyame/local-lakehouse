@@ -1,7 +1,7 @@
 
 # Apache Hudi on Spark with MinIO Integration
 
-![img.png](images/main.png)
+> ![img.png](images/architecture.png)
 
 This project demonstrates the integration of Apache Hudi, Apache Spark, and MinIO to build a prototype data lake architecture. 
 It allows scalable, efficient, and transactional data management on top of cloud-based object storage.
@@ -15,6 +15,12 @@ docker-compose up -d
 # in case you want to reacreate images after your chagne
 docker-compose up --build --force-recreate
  ```
+
+Caution:
+> Note: you may get error due to volume mapping if your local app/ directory is not writable by docker. There are mulitple ways to solve this. 
+> Like giving access to UID:GID defined in docker container. 
+> As a last resort you can do `chmod -R 777 app/` but this is not a recommended way to handle this. 
+> I will try to automate this in later release. 
 
 ### UI's: Various User Interface
 
@@ -109,17 +115,17 @@ hudi_df = spark.read.format("hudi").options(**hudi_read_options).load()
 hudi_df.show()
 ```
 
-![img.png](images/jupyter-spark-session.png)
+> ![img.png](images/jupyter-spark-session.png)
 
 Read hudi table screenshot:
 - Here I see empty table, that seems like issue with write or format issue 
 - In below screen I can see data in minio bucket so need to debug this. 
-![img.png](images/read-hudi-table.png)
+> ![img.png](images/read-hudi-table.png)
 
 Let's check the bucket content: 
 - As we can see in the screenshot below. Table has ben written to bucket.
 
-![img.png](images/minio-ui-bucket-content.png)
+> ![img.png](images/minio-ui-bucket-content.png)
 
 Above issue has be resolved, and here is updated read code:
 ![img.png](images/hudi-table-read-updated.png)
