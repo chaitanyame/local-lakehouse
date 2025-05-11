@@ -1,4 +1,5 @@
-version: "3"
+version: "3.8"
+
 services:
   spark:
     build:
@@ -6,10 +7,10 @@ services:
       dockerfile: dev.Dockerfile
     container_name: spark-hudi
     ports:
-      - "8888:8888"
-      - "4041:4041"
-      - "4040:4040"
-      - "18080:18080"
+      - "8888:8888"  # Jupyter
+      - "4041:4041"  # Spark UI
+      - "4040:4040"  # Spark UI alternate
+      - "18080:18080"  # Spark History Server
     volumes:
       - ./app:/home/sparkuser/app
       - ./app/event_logs:/home/spark/event_logs
@@ -25,13 +26,28 @@ services:
       - SPARK_DRIVER_MEMORY=2G
       - SPARK_WORKER_MEMORY=2G
       - SPARK_EXECUTOR_MEMORY=2G
+      - PYTHONHASHSEED=1  # For reproducibility
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
 
   minio:
-    image: minio/minio
+    image: minio/minio:latest
     container_name: minio
     ports:
-      - "9000:9000"
+      - "9000:9000"  # S3 API
       - "9001:9001"  # Minio Console
     volumes:
       - ./minio/data:/data  # Persistent storage
@@ -40,3 +56,22 @@ services:
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=minioadmin
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+networks:
+  default:
+    name: hudi-minio-network
+    driver: bridge
