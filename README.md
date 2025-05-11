@@ -1,5 +1,7 @@
 # local-lakehouse
 
+> **Note:** This repository is a modified version of [experientlabs/hudi-minio-spark](https://github.com/experientlabs/hudi-minio-spark). Credit to the original authors for their work.
+
 ## Apache Hudi on Spark with MinIO Integration
 
 > ![img.png](images/architecture.png)
@@ -29,8 +31,6 @@ Caution:
 2. Minio: http://localhost:9001/
 3. Spark ui: http://localhost:4040/jobs/
 4. History server: http://localhost:18080/
-
-
 
 
 
