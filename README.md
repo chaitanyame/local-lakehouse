@@ -1,5 +1,6 @@
+# local-lakehouse
 
-# Apache Hudi on Spark with MinIO Integration
+## Apache Hudi on Spark with MinIO Integration
 
 > ![img.png](images/architecture.png)
 
